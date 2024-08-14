@@ -12,17 +12,19 @@ namespace HotelListing.API.Controllers
 {
     [Route("api/v{version:apiVersion}/countries")]
     [ApiController]
-    [ApiVersion("1.0", Deprecated = true)]
-    public class CountriesController : ControllerBase
+    [ApiVersion("2.0")]
+    public class CountriesV2Controller : ControllerBase
     {
 
         private readonly IMapper _mapper;
         private readonly ICountriesRepository _countriesRepository;
+        private readonly ILogger<CountriesV2Controller> _logger;
 
-        public CountriesController(IMapper mapper, ICountriesRepository countriesRepository)
+        public CountriesV2Controller(IMapper mapper, ICountriesRepository countriesRepository, ILogger<CountriesV2Controller> logger)
         {
             _mapper = mapper;
             _countriesRepository = countriesRepository;
+            _logger = logger;
         }
 
         // GET: api/Countries
@@ -31,6 +33,11 @@ namespace HotelListing.API.Controllers
         {
             var countries = await _countriesRepository.GetAllAsync();
             var records = _mapper.Map<List<GetCountryDto>>(countries);
+            _logger.LogInformation("{CountriesV2Controller} - {GetCountries} - recordsCount:{count}", 
+                nameof(CountriesV2Controller), 
+                nameof(GetCountries), 
+                records.Count
+            );
             return Ok(records);
         }
 
@@ -99,7 +106,7 @@ namespace HotelListing.API.Controllers
         {
 
             // Prevent OverPosting by having a DTO, using a mapper is to encapsulate the code 
-            
+
             //var country = new Country()
             //{
             //    Name = createCountry.Name,
