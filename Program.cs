@@ -2,6 +2,7 @@ using HotelListing.API.Common;
 using HotelListing.API.Configurations;
 using HotelListing.API.Contracts;
 using HotelListing.API.Data;
+using HotelListing.API.Middleware;
 using HotelListing.API.Repositories;
 using HotelListing.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -85,6 +86,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseSerilogRequestLogging();
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseHttpsRedirection();
 
