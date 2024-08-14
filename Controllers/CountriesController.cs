@@ -95,7 +95,7 @@ namespace HotelListing.API.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         [Authorize]
-        public async Task<ActionResult<Country>> PostCountry(CreateCountryDto createCountry)
+        public async Task<ActionResult<Country>> PostCountry(CreateCountryDto createCountry, ApiVersion version)
         {
 
             // Prevent OverPosting by having a DTO, using a mapper is to encapsulate the code 
@@ -110,7 +110,7 @@ namespace HotelListing.API.Controllers
 
             await _countriesRepository.AddAsync(country);
 
-            return CreatedAtAction("GetCountry", new { id = country.Id }, country);
+            return CreatedAtAction(nameof(GetCountry), new { id = country.Id, version = version.ToString() }, country);
         }
 
         // DELETE: api/Countries/5

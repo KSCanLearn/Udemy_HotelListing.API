@@ -7,6 +7,8 @@ using HotelListing.API.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using HotelListing.API.Exceptions;
 using Asp.Versioning;
+using Newtonsoft.Json;
+using Microsoft.Extensions.Logging;
 
 namespace HotelListing.API.Controllers
 {
@@ -33,9 +35,9 @@ namespace HotelListing.API.Controllers
         {
             var countries = await _countriesRepository.GetAllAsync();
             var records = _mapper.Map<List<GetCountryDto>>(countries);
-            _logger.LogInformation("{CountriesV2Controller} - {GetCountries} - recordsCount:{count}", 
-                nameof(CountriesV2Controller), 
-                nameof(GetCountries), 
+            _logger.LogInformation("{CountriesV2Controller} - {GetCountries} - recordsCount:{count}",
+                nameof(CountriesV2Controller),
+                nameof(GetCountries),
                 records.Count
             );
             return Ok(records);
@@ -102,7 +104,7 @@ namespace HotelListing.API.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         [Authorize]
-        public async Task<ActionResult<Country>> PostCountry(CreateCountryDto createCountry)
+        public async Task<ActionResult<Country>> PostCountry(CreateCountryDto createCountry, ApiVersion version)
         {
 
             // Prevent OverPosting by having a DTO, using a mapper is to encapsulate the code 
@@ -114,10 +116,9 @@ namespace HotelListing.API.Controllers
             //};
             var country = _mapper.Map<Country>(createCountry);
 
-
             await _countriesRepository.AddAsync(country);
 
-            return CreatedAtAction("GetCountry", new { id = country.Id }, country);
+            return CreatedAtAction(nameof(GetCountry), new { id = country.Id, version = version.ToString() }, country);
         }
 
         // DELETE: api/Countries/5
