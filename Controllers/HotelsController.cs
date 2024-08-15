@@ -5,6 +5,7 @@ using HotelListing.API.Contracts;
 using AutoMapper;
 using HotelListing.API.Models.Hotel;
 using Microsoft.AspNetCore.Authorization;
+using HotelListing.API.Models;
 
 namespace HotelListing.API.Controllers
 {
@@ -14,20 +15,36 @@ namespace HotelListing.API.Controllers
     {
         private readonly IHotelsRepository _hotelsRepository;
         private readonly IMapper _mapper;
+        private readonly ILogger<HotelsController> _logger;
 
-        public HotelsController(IHotelsRepository hotelsRepository, IMapper mapper)
+        public HotelsController(IHotelsRepository hotelsRepository, IMapper mapper, ILogger<HotelsController> logger)
         {
             _hotelsRepository = hotelsRepository;
             _mapper = mapper;
+            _logger = logger;
         }
 
-        // GET: api/Hotels
-        [HttpGet]
+        // GET: api/Hotels/GetAll
+        [HttpGet("GetAll")]
         public async Task<ActionResult<IEnumerable<HotelDto>>> GetHotels()
         {
-            var hotels = await _hotelsRepository.GetAllAsync();
-            var records = _mapper.Map<List<HotelDto>>(hotels);
-            return Ok(records);
+            var hotels = await _hotelsRepository.GetAllAsync<HotelDto>();
+            return Ok(hotels);
+        }
+
+        // GET: api/Hotels?startIndex=0&pageSize=5&pageNumber=2
+        [HttpGet]
+        public async Task<ActionResult<PagedResult<HotelDto>>> GetPagedHotels([FromQuery] PagedQueryParameters pagedQueryParameters)
+        {
+            var pagedHotels = await _hotelsRepository.GetAllAsync<HotelDto>(pagedQueryParameters);
+
+            _logger.LogInformation("{Controller} - {Method} - recordsCount:{count}",
+                nameof(HotelsController),
+                nameof(GetPagedHotels),
+                pagedHotels.Items.Count
+            );
+
+            return Ok(pagedHotels);
         }
 
         // GET: api/Hotels/5
@@ -53,7 +70,7 @@ namespace HotelListing.API.Controllers
         {
             if (id != hotelDto.Id)
             {
-                return BadRequest(new {ErrorMsg = "Mismatch Ids"});
+                return BadRequest(new { ErrorMsg = "Mismatch Ids" });
             }
 
             var hotel = await _hotelsRepository.GetAsync(id);
@@ -70,7 +87,7 @@ namespace HotelListing.API.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (! await HotelExists(id))
+                if (!await HotelExists(id))
                 {
                     return NotFound();
                 }

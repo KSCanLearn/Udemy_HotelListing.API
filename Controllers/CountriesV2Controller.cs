@@ -9,6 +9,7 @@ using HotelListing.API.Exceptions;
 using Asp.Versioning;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Logging;
+using HotelListing.API.Models;
 
 namespace HotelListing.API.Controllers
 {
@@ -29,18 +30,34 @@ namespace HotelListing.API.Controllers
             _logger = logger;
         }
 
-        // GET: api/Countries
-        [HttpGet]
+        // GET: api/Countries/GetAll
+        [HttpGet("GetAll")]
         public async Task<ActionResult<IEnumerable<GetCountryDto>>> GetCountries()
         {
-            var countries = await _countriesRepository.GetAllAsync();
-            var records = _mapper.Map<List<GetCountryDto>>(countries);
-            _logger.LogInformation("{CountriesV2Controller} - {GetCountries} - recordsCount:{count}",
+            var countries = await _countriesRepository.GetAllAsync<GetCountryDto>();
+
+            _logger.LogInformation("{Controller} - {Method} - recordsCount:{count}",
                 nameof(CountriesV2Controller),
                 nameof(GetCountries),
-                records.Count
+                countries.Count
             );
-            return Ok(records);
+
+            return Ok(countries);
+        }
+
+        // GET: api/Countries?startIndex=0&pageSize=5&pageNumber=2
+        [HttpGet]
+        public async Task<ActionResult<PagedResult<GetCountryDto>>> GetPagedCountries([FromQuery] PagedQueryParameters pagedQueryParameters)
+        {
+            var pagedCountries = await _countriesRepository.GetAllAsync<GetCountryDto>(pagedQueryParameters);
+
+            _logger.LogInformation("{Controller} - {Method}- recordsCount:{count}",
+                nameof(CountriesV2Controller),
+                nameof(GetPagedCountries),
+                pagedCountries.Items.Count
+            );
+
+            return Ok(pagedCountries);
         }
 
         // GET: api/Countries/5
