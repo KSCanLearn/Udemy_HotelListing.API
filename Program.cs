@@ -8,6 +8,7 @@ using HotelListing.API.Repositories;
 using HotelListing.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.OData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
@@ -29,7 +30,6 @@ builder.Services.AddIdentityCore<ApiUser>()
     .AddEntityFrameworkStores<HotelListingDbContext>()
     .AddDefaultTokenProviders();
 
-builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -101,6 +101,12 @@ builder.Services.AddResponseCaching(options =>
     options.UseCaseSensitivePaths = true;
 });
 
+builder.Services.AddControllers().AddOData(options =>
+{
+    options.Select().Filter().OrderBy();
+});
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -126,7 +132,7 @@ app.Use(async (context, next) =>
         new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
         {
             Public = true,
-            MaxAge = TimeSpan.FromSeconds(10)
+            MaxAge = TimeSpan.FromSeconds(1000)
         };
     context.Response.Headers[Microsoft.Net.Http.Headers.HeaderNames.Vary] =
         new string[] { "Accept-Encoding" };

@@ -10,6 +10,7 @@ using Asp.Versioning;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Logging;
 using HotelListing.API.Models;
+using Microsoft.AspNetCore.OData.Query;
 
 namespace HotelListing.API.Controllers
 {
@@ -31,7 +32,9 @@ namespace HotelListing.API.Controllers
         }
 
         // GET: api/Countries/GetAll
+        // Refer on this how to use those queries: https://docs.oasis-open.org/odata/odata/v4.01/odata-v4.01-part2-url-conventions.html#_Toc31360994
         [HttpGet("GetAll")]
+        [EnableQuery]
         public async Task<ActionResult<IEnumerable<GetCountryDto>>> GetCountries()
         {
             var countries = await _countriesRepository.GetAllAsync<GetCountryDto>();
