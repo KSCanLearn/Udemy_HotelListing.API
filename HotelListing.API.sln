@@ -3,9 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34525.116
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HotelListing.API", "HotelListing.API.csproj", "{A1839906-F8C5-4C40-854B-B9FDFB5D7B50}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HotelListing.API", "HotelListing.API.csproj", "{A1839906-F8C5-4C40-854B-B9FDFB5D7B50}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HotelListing.MinimalAPI", "..\HotelListing.MinimalAPI\HotelListing.MinimalAPI.csproj", "{C0AEFFD5-6281-4B02-A426-E65AC31804EA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HotelListing.API.Data", "..\HotelListing.API.Data\HotelListing.API.Data.csproj", "{9152AE3C-903B-4620-AB10-AB73990DF63B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HotelListing.API.Core", "..\HotelListing.API.Core\HotelListing.API.Core.csproj", "{8EE76C8A-EA00-49D0-AFBA-E1EF8E545D06}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +25,14 @@ Global
 		{C0AEFFD5-6281-4B02-A426-E65AC31804EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C0AEFFD5-6281-4B02-A426-E65AC31804EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C0AEFFD5-6281-4B02-A426-E65AC31804EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9152AE3C-903B-4620-AB10-AB73990DF63B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9152AE3C-903B-4620-AB10-AB73990DF63B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9152AE3C-903B-4620-AB10-AB73990DF63B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9152AE3C-903B-4620-AB10-AB73990DF63B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8EE76C8A-EA00-49D0-AFBA-E1EF8E545D06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8EE76C8A-EA00-49D0-AFBA-E1EF8E545D06}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8EE76C8A-EA00-49D0-AFBA-E1EF8E545D06}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8EE76C8A-EA00-49D0-AFBA-E1EF8E545D06}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
