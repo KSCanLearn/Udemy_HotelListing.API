@@ -91,8 +91,8 @@ namespace HotelListing.API.Controllers
         [Authorize]
         public async Task<ActionResult<HotelDto>> PostHotel(CreateHotelDto createHotelDto)
         {
-            var hotelDto = await _hotelsRepository.AddAsync<CreateHotelDto,HotelDto>(hotel);
-            return CreatedAtAction("GetHotel", new { id = hotel.Id }, hotelDto);
+            var hotelDto = await _hotelsRepository.AddAsync<CreateHotelDto,HotelDto>(createHotelDto);
+            return CreatedAtAction("GetHotel", new { id = hotelDto.Id }, hotelDto);
         }
 
         // DELETE: api/Hotels/5
@@ -100,7 +100,7 @@ namespace HotelListing.API.Controllers
         [Authorize(Roles = "Adminstartor")]
         public async Task<IActionResult> DeleteHotel(int id)
         {
-            await _hotelsRepository.DeleteAsync(hotel.Id);
+            await _hotelsRepository.DeleteAsync(id);
 
             return NoContent();
         }
