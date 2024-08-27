@@ -144,6 +144,11 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    //app.UseSwagger();
+    //app.UseSwaggerUI();
+}
+
+// Move the swagger from IsDevelopment so that it requires Bearer to execute.
     app.UseSwagger();
     app.UseSwaggerUI();
 }
