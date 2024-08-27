@@ -37,13 +37,11 @@ namespace HotelListing.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<CountryDto>> GetCountry(int id)
         {
-            var country = await _countriesRepository.GetDetails(id);
-            if (country == null)
+            var countryDto = await _countriesRepository.GetDetails(id);
+            if (countryDto == null)
             {
                 throw new NotFoundException(nameof(GetCountry), id);
             }
-
-            var countryDto = _mapper.Map<CountryDto>(country);
 
             return Ok(countryDto);
         }
