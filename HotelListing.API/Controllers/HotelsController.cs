@@ -51,14 +51,7 @@ namespace HotelListing.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<HotelDto>> GetHotel(int id)
         {
-            var hotel = await _hotelsRepository.GetAsync(id);
-            if (hotel == null)
-            {
-                return NotFound();
-            }
-
-            var hotelDto = _mapper.Map<HotelDto>(hotel);
-
+            var hotelDto = await _hotelsRepository.GetAsync<HotelDto>(id);
             return Ok(hotelDto);
         }
 
@@ -73,17 +66,9 @@ namespace HotelListing.API.Controllers
                 return BadRequest(new { ErrorMsg = "Mismatch Ids" });
             }
 
-            var hotel = await _hotelsRepository.GetAsync(id);
-            if (hotel == null)
-            {
-                return NotFound();
-            }
-
-            _mapper.Map(hotelDto, hotel);
-
             try
             {
-                await _hotelsRepository.UpdateAsync(hotel);
+                await _hotelsRepository.UpdateAsync(id, hotelDto);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -104,13 +89,10 @@ namespace HotelListing.API.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         [Authorize]
-        public async Task<ActionResult<Hotel>> PostHotel(CreateHotelDto createHotelDto)
+        public async Task<ActionResult<HotelDto>> PostHotel(CreateHotelDto createHotelDto)
         {
-            var hotel = _mapper.Map<Hotel>(createHotelDto);
-
-            await _hotelsRepository.AddAsync(hotel);
-
-            return CreatedAtAction("GetHotel", new { id = hotel.Id }, hotel);
+            var hotelDto = await _hotelsRepository.AddAsync<CreateHotelDto,HotelDto>(hotel);
+            return CreatedAtAction("GetHotel", new { id = hotel.Id }, hotelDto);
         }
 
         // DELETE: api/Hotels/5
@@ -118,12 +100,6 @@ namespace HotelListing.API.Controllers
         [Authorize(Roles = "Adminstartor")]
         public async Task<IActionResult> DeleteHotel(int id)
         {
-            var hotel = await _hotelsRepository.GetAsync(id);
-            if (hotel == null)
-            {
-                return NotFound();
-            }
-
             await _hotelsRepository.DeleteAsync(hotel.Id);
 
             return NoContent();
