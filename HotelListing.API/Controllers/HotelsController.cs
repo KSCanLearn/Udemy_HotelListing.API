@@ -11,6 +11,7 @@ namespace HotelListing.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class HotelsController : ControllerBase
     {
         private readonly IHotelsRepository _hotelsRepository;

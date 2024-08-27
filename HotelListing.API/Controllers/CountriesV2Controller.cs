@@ -15,6 +15,7 @@ namespace HotelListing.API.Controllers
     [Route("api/v{version:apiVersion}/countries")]
     [ApiController]
     [ApiVersion("2.0")]
+    [Authorize]
     public class CountriesV2Controller : ControllerBase
     {
 
