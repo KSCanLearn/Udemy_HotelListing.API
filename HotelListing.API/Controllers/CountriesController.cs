@@ -38,10 +38,6 @@ namespace HotelListing.API.Controllers
         public async Task<ActionResult<CountryDto>> GetCountry(int id)
         {
             var countryDto = await _countriesRepository.GetDetails(id);
-            if (countryDto == null)
-            {
-                throw new NotFoundException(nameof(GetCountry), id);
-            }
 
             return Ok(countryDto);
         }
