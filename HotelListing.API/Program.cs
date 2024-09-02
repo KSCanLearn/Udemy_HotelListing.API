@@ -14,6 +14,8 @@ using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -133,6 +135,15 @@ builder.Services.AddResponseCaching(options =>
     options.UseCaseSensitivePaths = true;
 });
 
+builder.Services.AddHealthChecks()
+    .AddCheck<CustomHealthCheck>(
+        "Sample",
+        failureStatus: HealthStatus.Degraded,
+        tags: new string[] { "custom" }
+    )
+    .AddSqlServer(connectionString, tags: new string[] { "database" })
+    .AddDbContextCheck<HotelListingDbContext>(tags: new string[] { "database" });
+
 builder.Services.AddControllers().AddOData(options =>
 {
     options.Select().Filter().OrderBy();
@@ -149,9 +160,34 @@ if (app.Environment.IsDevelopment())
 }
 
 // Move the swagger from IsDevelopment so that it requires Bearer to execute.
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
+
+app.MapHealthChecks("/healthcheck", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+{
+    Predicate = healthcheck => healthcheck.Tags.Contains("custom"),
+    ResultStatusCodes =
+    {
+        [HealthStatus.Healthy] = StatusCodes.Status200OK,
+        [HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable,
+        [HealthStatus.Healthy] = StatusCodes.Status200OK,
+
+    },
+    ResponseWriter = WriteResponse
+});
+
+app.MapHealthChecks("/databasehealthcheck", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+{
+    Predicate = healthcheck => healthcheck.Tags.Contains("database"),
+    ResultStatusCodes =
+    {
+        [HealthStatus.Healthy] = StatusCodes.Status200OK,
+        [HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable,
+        [HealthStatus.Healthy] = StatusCodes.Status200OK,
+
+    },
+    ResponseWriter = WriteResponse
+});
 
 app.UseSerilogRequestLogging();
 app.UseMiddleware<ExceptionMiddleware>();
@@ -183,3 +219,65 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+
+static Task WriteResponse(HttpContext context, HealthReport healthReport)
+{
+    context.Response.ContentType = "application/json; charset=utf-8";
+
+    var options = new JsonWriterOptions { Indented = true };
+
+    using var memoryStream = new MemoryStream();
+    using (var jsonWriter = new Utf8JsonWriter(memoryStream, options))
+    {
+        jsonWriter.WriteStartObject();
+        jsonWriter.WriteString("status", healthReport.Status.ToString());
+        jsonWriter.WriteStartObject("results");
+
+        foreach (var healthReportEntry in healthReport.Entries)
+        {
+            jsonWriter.WriteStartObject(healthReportEntry.Key);
+            jsonWriter.WriteString("status",
+                healthReportEntry.Value.Status.ToString());
+            jsonWriter.WriteString("description",
+                healthReportEntry.Value.Description);
+            jsonWriter.WriteStartObject("data");
+
+            foreach (var item in healthReportEntry.Value.Data)
+            {
+                jsonWriter.WritePropertyName(item.Key);
+
+                JsonSerializer.Serialize(jsonWriter, item.Value,
+                    item.Value?.GetType() ?? typeof(object));
+            }
+
+            jsonWriter.WriteEndObject();
+            jsonWriter.WriteEndObject();
+        }
+
+        jsonWriter.WriteEndObject();
+        jsonWriter.WriteEndObject();
+    }
+
+    return context.Response.WriteAsync(
+        Encoding.UTF8.GetString(memoryStream.ToArray()));
+}
+
+// Custom to do practice. 
+class CustomHealthCheck : IHealthCheck
+{
+    public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
+    {
+        var isHealthy = true; // This should have a business logic to check like SELECT 1 from DB etc.
+
+        if (isHealthy)
+        {
+            return Task.FromResult(
+                HealthCheckResult.Healthy("A healthy result."));
+        }
+
+        return Task.FromResult(
+            new HealthCheckResult(
+                context.Registration.FailureStatus, "An unhealthy result."));
+    }
+}
